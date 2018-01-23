@@ -57,7 +57,7 @@ function keyHandler(name, _, ch, code, playerName)
 end
 
 event.listen("key_up", keyHandler)
-keepRunning = false
+keepRunning = true
 term.clear()
 
 print("Reactor Controller is running.")

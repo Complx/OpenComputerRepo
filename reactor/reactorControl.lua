@@ -35,10 +35,10 @@ local function setReactor(state)
   end
   if config.redstoneSide == "all" then
     for _,s in ipairs(sides) do
-      rs.setOutput(sides[s], output)
+      redstone.setOutput(sides[s], output)
     end
   else
-    rs.setOutput(sides[config.redstoneSide], output)
+    redstone.setOutput(sides[config.redstoneSide], output)
   end
 end
 

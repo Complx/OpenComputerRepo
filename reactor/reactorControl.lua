@@ -15,9 +15,12 @@ elseif not component.isAvailable("ag_steam_turbine") then
   return
 end
 
-local redstone = component.redstone
-local reactor = component.reactor_redstone_port
-local turbine = component.ag_steam_turbine
+local redstone  = component.redstone
+local reactor   = component.reactor_redstone_port
+local turbine   = component.ag_steam_turbine
+
+local maxEnergy = turbine.getEnergyCapacity() * config.stayUnderCapacity
+local maxHeat   = reactor.getMaxHeat()
 
 local defaultCfg = {
   redstoneSide = "all",
@@ -26,33 +29,36 @@ local defaultCfg = {
   reactorMinHeat = .3,
 }
 
-local config = configlib.loadConfig("reactor.cfg", defaultCfg)
-
-local function setReactor(state)
-  local output = 0
-  if state then
-    output = 15
-  end
-  if config.redstoneSide == "all" then
-    for _,s in ipairs(sides) do
-      redstone.setOutput(sides[s], output)
+local config    = configlib.loadConfig("reactor.cfg", defaultCfg)
+local setReactor
+if config.redstoneSide == "all" then
+  setReactor = function(state)
+    local output = 0
+    if state then
+      output = 15
     end
-  else
+    for s=0,5 do
+      redstone.setOutput(s, output)
+    end
+  end
+else
+  setReactor = function(state)
+    local output = 0
+    if state then
+      output = 15
+    end
     redstone.setOutput(sides[config.redstoneSide], output)
   end
 end
 
 local function reactorHeat()
-  return reactor.getHeat() / reactor.getMaxHeat()
-end
-
-local function reactorOn()
-  return reactor.producesEnergy()
+  return reactor.getHeat() / maxHeat
 end
 
 function reactorControl.mainLoop()
-  if turbine.getEnergyStored() < turbine.getEnergyCapacity() * config.stayUnderCapacity then
-    if reactorOn() then
+  if config == nil then print("Error") end
+  if turbine.getEnergyStored() < maxEnergy then
+    if reactor.producesEnergy() then
       if reactorHeat() >= config.reactorMaxHeat then setReactor(false) end
     else
       if reactorHeat() <= config.reactorMinHeat then setReactor(true) end

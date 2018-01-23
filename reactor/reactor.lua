@@ -3,13 +3,13 @@ local sides = require("sides")
 local shell = require("shell")
 local event = require("event")
 
-local reactorControl = dofile(shell.resolve("reactorControl", "lua"))
 local timer = 0
 
 function start()
   if timer == 0 then
-    timer = event.timer(0.2, reactorControl.mainLoop, math.huge)
-    print("id: ", timer)
+    local reactorControl = dofile(shell.resolve("reactorControl", "lua"))
+    timer = event.timer(0.6, reactorControl.mainLoop, math.huge)
+    print("Started, id: ", timer)
   else
     print("reactorControl already running")
   end

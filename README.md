@@ -1,2 +1,2 @@
 # OpenComputerRepo
-Storage for Minecraft's OpenComputer Programs
+Storage for Complexx's OpenComputer Programs

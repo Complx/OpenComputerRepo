@@ -28,3 +28,15 @@ function stop()
     rs.setOutput(sides[s], 0)
   end
 end
+
+function status()
+  if timer == 0 then
+    print("Reactor Controller: Stopped")
+  else
+    local on, heat, energy = reactorControl.status()
+    print("Reactor Controller: Running")
+    print("Reactor: ", on and "On" or "Off")
+    print("Current Heat: ", math.floor(heat * 100 + 0.5), "%"
+    print("Energy Stored: ", energy)
+  end
+end

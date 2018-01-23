@@ -68,4 +68,8 @@ function reactorControl.mainLoop()
   end
 end
 
+function reactorControl.status()
+  return reactor.producesEnergy(), reactorHeat(), turbine.getEnergyStored()
+end
+
 return reactorControl

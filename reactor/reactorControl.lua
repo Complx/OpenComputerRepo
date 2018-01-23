@@ -15,6 +15,14 @@ elseif not component.isAvailable("ag_steam_turbine") then
   return
 end
 
+local defaultCfg = {
+  redstoneSide = "all",
+  stayUnderCapacity = .75,
+  reactorMaxHeat = .15,
+  reactorMinHeat = .05,
+}
+local config    = configlib.loadConfig("reactor.cfg", defaultCfg)
+
 local redstone  = component.redstone
 local reactor   = component.reactor_redstone_port
 local turbine   = component.ag_steam_turbine
@@ -22,14 +30,6 @@ local turbine   = component.ag_steam_turbine
 local maxEnergy = turbine.getEnergyCapacity() * config.stayUnderCapacity
 local maxHeat   = reactor.getMaxHeat()
 
-local defaultCfg = {
-  redstoneSide = "all",
-  stayUnderCapacity = .75,
-  reactorMaxHeat = .4,
-  reactorMinHeat = .3,
-}
-
-local config    = configlib.loadConfig("reactor.cfg", defaultCfg)
 local setReactor
 if config.redstoneSide == "all" then
   setReactor = function(state)

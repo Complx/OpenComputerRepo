@@ -2,6 +2,8 @@ local component = require("component")
 local fs = require("filesystem")
 local configlib = require("configlib")
 local sides = require("sides")
+local term = require("term")
+local event = require("event")
 
 if not component.isAvailable("redstone") then
   io.stderr:write("No Redstone interface found")
@@ -50,7 +52,18 @@ local function reactorOn()
   return reactor.producesEnergy()
 end
 
-while true do
+function keyHandler(name, _, ch, code, playerName)
+  if code == 16 then keepRunning = false end
+end
+
+event.listen("key_up", keyHandler)
+keepRunning = false
+term.clear()
+
+print("Reactor Controller is running.")
+print("Press Q to Quit")
+
+while keepRunning do
   if turbine.getEnergyStored() < turbine.getEnergyCapacity() * config.stayUnderCapacity then
     if reactorOn() then
       if reactorHeat() >= config.reactorMaxHeat then setReactor(false) end

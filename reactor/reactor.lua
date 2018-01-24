@@ -1,42 +1,49 @@
 local component = require("component")
-local sides = require("sides")
-local shell = require("shell")
-local event = require("event")
+local sides     = require("sides")
+local shell     = require("shell")
+local term      = require("term")
+local event     = require("event")
+local reactorControl = require("reactorControl")
 
-local timer = 0
+local stop = false
 
-function start()
-  if timer == 0 then
-    local reactorControl = dofile(shell.resolve("reactorControl", "lua"))
-    timer = event.timer(0.6, reactorControl.mainLoop, math.huge)
-    print("Started, id: ", timer)
-  else
-    print("reactorControl already running")
+local function writeLine(str)
+  term.clearLine()
+  print(str)
+end
+
+local function status()
+  local on, heat, energy = reactorControl.status()
+  term.setCursor(1,1)
+  writeLine("Reactor Controller: Running")
+  writeLine("Reactor: " .. (on and "On" or "Off"))
+  writeLine("Current Heat: " .. math.floor(heat * 100 + 0.5) .. "%")
+  writeLine("Energy Stored: " .. math.floor(energy + 0.5).." RF")
+end
+
+local function keyHandler(_ , ch, code, playerName)
+  local ch = string.char(ch)
+  if ch == 'q' then
+    stop = true
   end
 end
 
-function stop()
-  local result = event.cancel(timer)
-  print("Stopped: ", result)
-  if not result then
-    print("Error stopping reactorControl")
-  end
-  timer = 0
-  local rs = component.redstone
-
-  for _,s in ipairs(sides) do
-    rs.setOutput(sides[s], 0)
+local function handleEvent(e, ...)
+  if e == "key_up" then
+    keyHandler(...)
+  elseif e == "interrupted" then 
+    stop = true
   end
 end
 
-function status()
-  if timer == 0 then
-    print("Reactor Controller: Stopped")
-  else
-    local on, heat, energy = reactorControl.status()
-    print("Reactor Controller: Running")
-    print("Reactor: ", on and "On" or "Off")
-    print("Current Heat: ", math.floor(heat * 100 + 0.5), "%"
-    print("Energy Stored: ", energy)
-  end
+term.clear()
+while not stop do
+  reactorControl.mainLoop()
+  status()
+  handleEvent(event.pull(0.5))
+end
+
+local rs = component.redstone
+for _,s in ipairs(sides) do
+  rs.setOutput(sides[s], 0)
 end
